@@ -10,15 +10,15 @@ export class UserService {
     return { user: data };
   }
 
-  async read(id: number): Promise<any | null> {
+  async read(id: string): Promise<any | null> {
     return { user: id };
   }
 
-  async update(id: number, data: UpdateUserDto): Promise<any> {
+  async update(id: string, data: UpdateUserDto): Promise<any> {
     return { user: [id, data] };
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: string): Promise<void> {
     // delete user[id]
   }
 }
