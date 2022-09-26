@@ -6,7 +6,7 @@ export class CreateDto {
 
   @IsOptional()
   @IsString()
-  public content?: string;
+  readonly content?: string;
 
   @ArrayNotEmpty()
   @IsString({ each: true })

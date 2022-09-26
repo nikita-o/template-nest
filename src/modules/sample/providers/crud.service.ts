@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CrudService {
-  public async create(data: any): Promise<any> {
+  public create(data: any): Promise<any> {
     return data;
   }
 
