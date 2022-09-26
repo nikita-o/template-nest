@@ -6,7 +6,7 @@ import { config } from './configs';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
-    logger: config.prod
+    logger: config().prod
       ? ['error', 'warn']
       : ['log', 'debug', 'error', 'warn', 'verbose'],
   });
@@ -17,4 +17,4 @@ async function bootstrap(): Promise<void> {
 
   await app.listen(3000);
 }
-bootstrap();
+void bootstrap();

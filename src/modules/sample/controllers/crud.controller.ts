@@ -18,7 +18,7 @@ import { UpdateDto } from '../dto/update.dto';
 export class CrudController {
   constructor(private crud: CrudService) {}
 
-  @Get(':id') // GET http://localhost:3000/test/crud/:id
+  @Get(':id')
   public async read(@Param('id', ParseIntPipe) id: number): Promise<any> {
     const result = await this.crud.read(id);
     if (!result) {
@@ -27,7 +27,7 @@ export class CrudController {
     return result;
   }
 
-  @Post() // POST http://localhost:3000/test/crud
+  @Post()
   public async create(@Body() body: CreateDto): Promise<{ id: number }> {
     const result = await this.crud.create(body);
     if (!result.id) {
@@ -36,14 +36,19 @@ export class CrudController {
     return { id: result.id };
   }
 
-  @Put(':id') // PUT http://localhost:3000/test/crud/:id
-  public async update(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateDto): Promise<{ success: boolean }> {
+  @Put(':id')
+  public async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateDto,
+  ): Promise<{ success: boolean }> {
     const result = await this.crud.update(id, body);
     return { success: !!result.affected };
   }
 
-  @Delete(':id') // DELETE http://localhost:3000/test/crud/:id
-  public async remove(@Param('id', ParseIntPipe) id: number): Promise<{ success: boolean }> {
+  @Delete(':id')
+  public async remove(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ success: boolean }> {
     const result = await this.crud.remove(id);
     return { success: !!result.affected };
   }
