@@ -13,5 +13,10 @@ export const config = () => ({
     password: env.DB_PASSWORD,
     database: 'database',
   },
-  secretKey: env.SECRET_KEY,
+  secure: {
+    refreshLifetime: 10e18,
+    refreshLength: 64,
+    jwtLifetime: 3600,
+    jwtSecret: 'asd',
+  },
 });
