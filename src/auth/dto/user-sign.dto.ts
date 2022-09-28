@@ -4,9 +4,9 @@ import { IsString } from 'class-validator';
 export class UserSignDto {
   @ApiProperty()
   @IsString()
-  login: string;
+  login!: string;
 
   @ApiProperty()
   @IsString()
-  password: string;
+  password!: string;
 }

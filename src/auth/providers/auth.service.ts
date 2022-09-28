@@ -1,6 +1,6 @@
 import { CreateUserDto } from '../../modules/user/dto/create-user.dto';
 import { UserService } from '../../modules/user/user.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UtilService } from '../../common/utils/util.service';
 import { CommonLoginResponseDto } from '../dto/common-login-response.dto';
 import { UserSignDto } from '../dto/user-sign.dto';
@@ -53,7 +53,7 @@ export class AuthService {
       delete user.passwordHash;
       return user;
     }
-    return null;
+    throw new UnauthorizedException('неверный логин или пароль');
   }
 
   async registration(data: CreateUserDto): Promise<void> {
