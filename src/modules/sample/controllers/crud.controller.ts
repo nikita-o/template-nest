@@ -13,7 +13,9 @@ import {
 import { CrudService } from '../providers/crud.service';
 import { CreateDto } from '../dto/create.dto';
 import { UpdateDto } from '../dto/update.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('crud')
 @Controller('crud')
 export class CrudController {
   constructor(private crud: CrudService) {}

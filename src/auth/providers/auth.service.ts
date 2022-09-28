@@ -13,6 +13,7 @@ import { randomBytes } from 'crypto';
 @Injectable()
 export class AuthService {
   private readonly logger: Logger = new Logger(AuthService.name);
+
   constructor(
     private config: ConfigService,
     private userService: UserService,
@@ -23,7 +24,6 @@ export class AuthService {
   private generateJwt(id: string, roles: ERole[]): string {
     const jwtLifetime: number = this.config.getOrThrow('secure').jwtLifetime;
     const jwtSecret: string = this.config.get('secure').jwtSecret;
-
     const actualPayload: JwtPayload = {
       sub: id,
       roles: roles,
@@ -37,14 +37,17 @@ export class AuthService {
 
   private generateRefreshToken(idUser: string): string {
     const refreshLifetime: number = this.config.get('secure').refreshLifetime;
+    // refreshLifetime и idUser сохраняются в базу данных, как и сгенеренный токен
     const refreshLength: number = this.config.get('secure').refreshLength;
-    // save to database
-    return randomBytes(Number(refreshLength)).toString('hex');
+    const token: string = randomBytes(Number(refreshLength)).toString('hex');
+    return token;
   }
 
-  async validateUser(email: string, password: string): Promise<any | null> {
-    this.logger.debug('validateUser');
-    const user = await this.userService.read(email);
+  private async validateUser(
+    login: string,
+    password: string,
+  ): Promise<any | null> {
+    const user = await this.userService.read(login);
     const passwordHash = this.utilService.getHash(password);
     if (user && user.passwordHash === passwordHash) {
       delete user.passwordHash;
@@ -54,13 +57,13 @@ export class AuthService {
   }
 
   async registration(data: CreateUserDto): Promise<void> {
-    this.logger.debug('registration');
-    // maybe there will be some processing
+    // перед созданием возможно будет какая то обработка
     await this.userService.create(data);
   }
 
   async signIn(data: UserSignDto): Promise<CommonLoginResponseDto> {
-    const accessJwt: string = this.generateJwt('1', [ERole.Admin]);
+    const user: any = this.validateUser(data.login, data.password);
+    const accessJwt: string = this.generateJwt(user.id, [ERole.Admin]);
     const refreshToken: string = this.generateRefreshToken('1');
     return {
       accessToken: accessJwt,

@@ -2,11 +2,11 @@ import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from '../providers/auth.service';
 import { CreateUserDto } from '../../modules/user/dto/create-user.dto';
 import { JwtAuthGuard } from '../guards/jwtAuth.guard';
-import { AuthenticatedGuard } from '../guards/authenticated.guard';
 import { UserSignDto } from '../dto/user-sign.dto';
 import { CommonLoginResponseDto } from '../dto/common-login-response.dto';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -26,11 +26,5 @@ export class AuthController {
   @Post('login')
   async login(@Req() req: any) {
     return req.user;
-  }
-
-  @UseGuards(AuthenticatedGuard)
-  @Get('check')
-  checkAuth() {
-    return true;
   }
 }

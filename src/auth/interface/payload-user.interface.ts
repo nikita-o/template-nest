@@ -1,5 +1,5 @@
 // Можно тупо всего юзера отправлять
-export interface Payload {
+export interface PayloadUser {
   userId: string;
   username: string;
   roles: string[];

@@ -15,7 +15,9 @@ import {
   FilesInterceptor,
 } from '@nestjs/platform-express';
 import { FilesDto } from './dto/files.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('files')
 @Controller('files')
 export class FilesController {
   constructor(private filesService: FilesService) {}
