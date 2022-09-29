@@ -5,8 +5,10 @@ import { User } from '../entities/user.entity';
 export class UserRepository implements Entity<User> {
   tableName = 'user';
   namesFields = {
-    name: 'name',
+    id: 'id',
+    username: 'name',
     passwordHash: 'password_hash',
+    role: 'role',
   };
 
   constructor(private db: DatabaseService) {}

@@ -21,12 +21,12 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  private generateJwt(id: string, roles: ERole[]): string {
+  private generateJwt(id: string, role: ERole): string {
     const jwtLifetime: number = this.config.getOrThrow('secure').jwtLifetime;
     const jwtSecret: string = this.config.get('secure').jwtSecret;
     const actualPayload: JwtPayload = {
       sub: id,
-      roles: roles,
+      role: role,
     };
     const token: string = this.jwtService.sign(actualPayload, {
       secret: jwtSecret,
@@ -63,7 +63,7 @@ export class AuthService {
 
   async signIn(data: UserSignDto): Promise<CommonLoginResponseDto> {
     const user: any = this.validateUser(data.login, data.password);
-    const accessJwt: string = this.generateJwt(user.id, [ERole.Admin]);
+    const accessJwt: string = this.generateJwt(user.id, ERole.Admin);
     const refreshToken: string = this.generateRefreshToken('1');
     return {
       accessToken: accessJwt,

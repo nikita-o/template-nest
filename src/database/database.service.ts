@@ -93,7 +93,7 @@ export class DatabaseService {
     }
 
     const whereP = [];
-    for (const key in entityMap) {
+    for (const key in whereMap) {
       whereP.push(`${key}=$${i++}`);
     }
 

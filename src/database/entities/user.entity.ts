@@ -1,4 +1,8 @@
+import { ERole } from '../../common/enums/role.enum';
+
 export interface User {
-  name: string;
+  id: string;
+  username: string;
   passwordHash: string;
+  role: ERole; // Пока что 1 роль
 }
