@@ -1,4 +1,10 @@
-import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsDateString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { Transform, TransformFnParams } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -19,11 +25,6 @@ export class SampleDto {
   @ApiProperty()
   @IsDateString() // ISO 8601
   public date: string = new Date().toISOString(); // default value
-
-  @ApiProperty()
-  @IsString() // Change date format
-  @Transform(({ value }: TransformFnParams) => String(value))
-  public datetime!: string;
 
   @ApiProperty()
   @IsNotEmpty()
