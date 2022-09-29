@@ -7,7 +7,7 @@ import { UserSignDto } from '../dto/user-sign.dto';
 import { ERole } from '../../common/enums/role.enum';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { JwtPayload } from '../interface/jwt.interface';
+import { JwtPayload } from '../interface/jwt-payload.interface';
 import { randomBytes } from 'crypto';
 
 @Injectable()

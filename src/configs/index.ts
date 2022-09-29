@@ -2,21 +2,21 @@
 // @ts-nocheck
 const { env } = process;
 export const config = () => ({
-  host: env.HOST,
-  port: +env.PORT,
-  prod: !!+env.PROD,
+  host: env.HOST || 'localhost',
+  port: +env.PORT || 3000,
+  prod: !!+env.PROD || false,
   database: {
-    type: 'mysql',
-    host: env.DB_HOST,
-    port: 1234,
-    user: env.DB_USER,
-    password: env.DB_PASSWORD,
-    database: 'database',
+    type: 'postgres',
+    host: env.DB_HOST || 'localhost',
+    port: env.DB_PORT || 5432,
+    username: env.DB_USER || 'postgres',
+    password: env.DB_PASSWORD || 'postgres',
+    database: env.DB_DATABASE || 'postgres',
   },
   secure: {
-    refreshLifetime: 10e18,
-    refreshLength: 64,
-    jwtLifetime: 3600,
-    jwtSecret: 'asd',
+    refreshLifetime: +env.REFRESH_LIFETIME || 10e18,
+    refreshLength: +env.REFRESH_LENGTH || 64,
+    jwtLifetime: +env.JWT_LIFETIME || 3600,
+    jwtSecret: env.JWT_SECRET || 'secret',
   },
 });
