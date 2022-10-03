@@ -12,6 +12,8 @@ export const config = () => ({
     username: env.DB_USER || 'postgres',
     password: env.DB_PASSWORD || 'postgres',
     database: env.DB_DATABASE || 'postgres',
+    autoLoadEntities: true,
+    synchronize: true,
   },
   secure: {
     refreshLifetime: +env.REFRESH_LIFETIME || 10e18,
