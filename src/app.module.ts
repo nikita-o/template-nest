@@ -5,6 +5,8 @@ import { ConfigModule } from '@nestjs/config';
 import { config } from './configs';
 import { FilesModule } from './modules/files/files.module';
 import { SampleModule } from './modules/sample/sample.module';
+import { DatabaseModule } from './database/database.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -13,8 +15,10 @@ import { SampleModule } from './modules/sample/sample.module';
     AuthModule,
     SampleModule,
     FilesModule,
+    UserModule,
     // globals:
     CommonModule,
+    DatabaseModule,
   ],
 })
 export class AppModule {}
