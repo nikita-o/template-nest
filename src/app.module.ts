@@ -7,6 +7,7 @@ import { FilesModule } from './modules/files/files.module';
 import { SampleModule } from './modules/sample/sample.module';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DatabaseModule } from './database/database.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -18,9 +19,10 @@ import { DatabaseModule } from './database/database.module';
         <TypeOrmModuleOptions>configService.get('database'),
     }),
     // my modules:
-    AuthModule,
+    //AuthModule,
     SampleModule,
     FilesModule,
+    UserModule,
     // globals:
     CommonModule,
     DatabaseModule,

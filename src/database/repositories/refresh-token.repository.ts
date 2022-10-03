@@ -17,7 +17,11 @@ export class RefreshTokenRepository extends Repository<RefreshToken> {
     const refreshLifetime: number = this.config.get('secure').refreshLifetime;
     const refreshLength: number = this.config.get('secure').refreshLength;
     const token: string = randomBytes(Number(refreshLength)).toString('hex');
-
+    await this.save({
+      token,
+      user: { id: userId },
+      expDate: new Date(new Date().getTime() + refreshLifetime),
+    });
     return token;
   }
 }

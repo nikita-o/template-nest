@@ -9,6 +9,11 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../interface/jwt-payload.interface';
 import { randomBytes } from 'crypto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../../database/entities/user.entity';
+import { Repository } from 'typeorm';
+import { RefreshToken } from '../../database/entities/refresh-token.entity';
+import { RefreshTokenRepository } from '../../database/repositories/refresh-token.repository';
 
 @Injectable()
 export class AuthService {
@@ -19,35 +24,51 @@ export class AuthService {
     private userService: UserService,
     private utilService: UtilService,
     private jwtService: JwtService,
+    @InjectRepository(User)
+    private repUser: Repository<User>,
+    @InjectRepository(RefreshTokenRepository)
+    private repRefreshToken: RefreshTokenRepository,
   ) {}
 
   private generateJwt(id: string, roles: ERole[]): string {
-    const jwtLifetime: number = this.config.getOrThrow('secure').jwtLifetime;
-    const jwtSecret: string = this.config.get('secure').jwtSecret;
     const actualPayload: JwtPayload = {
       sub: id,
       roles: roles,
     };
     const token: string = this.jwtService.sign(actualPayload, {
-      secret: jwtSecret,
-      expiresIn: jwtLifetime,
+      secret: this.config.getOrThrow('secure').jwtLifetime,
+      expiresIn: this.config.get('secure').jwtSecret,
     });
     return token;
   }
 
-  private generateRefreshToken(idUser: string): string {
-    const refreshLifetime: number = this.config.get('secure').refreshLifetime;
-    // refreshLifetime и idUser сохраняются в базу данных, как и сгенеренный токен
-    const refreshLength: number = this.config.get('secure').refreshLength;
-    const token: string = randomBytes(Number(refreshLength)).toString('hex');
-    return token;
+  private async refresh(idUser: string): Promise<string> {
+    // поиск токена
+    const refresh: RefreshToken | null = await this.repRefreshToken.findOneBy({
+      user: { id: idUser },
+    });
+    if (!refresh) {
+      this.logger.warn('!refresh');
+      throw new UnauthorizedException('Неверный refresh токен');
+    }
+
+    // удаление токена
+    const userId: string = refresh.user.id;
+    await this.repRefreshToken.delete({ user: { id: idUser } });
+
+    // создание нового токена
+    const newRefresh: string = await this.repRefreshToken.generateRefresh(
+      userId,
+    );
+
+    return newRefresh;
   }
 
   private async validateUser(
     login: string,
     password: string,
   ): Promise<any | null> {
-    const user = await this.userService.read(login);
+    const user: Partial<User> = await this.userService.read(login);
     const passwordHash = this.utilService.getHash(password);
     if (user && user.passwordHash === passwordHash) {
       delete user.passwordHash;
@@ -64,7 +85,7 @@ export class AuthService {
   async signIn(data: UserSignDto): Promise<CommonLoginResponseDto> {
     const user: any = this.validateUser(data.login, data.password);
     const accessJwt: string = this.generateJwt(user.id, [ERole.Admin]);
-    const refreshToken: string = this.generateRefreshToken('1');
+    const refreshToken: string = await this.refresh('1');
     return {
       accessToken: accessJwt,
       refreshToken,
