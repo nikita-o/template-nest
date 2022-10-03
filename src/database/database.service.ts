@@ -23,7 +23,7 @@ export class DatabaseService {
     });
   }
 
-  queryManyRows(text: string, params?: any[]): Promise<any> {
+  queryManyRows(text: string, params?: any[]): Promise<any[]> {
     return this.pool.query(text, params).then((result) => {
       return result.rows;
     });
@@ -36,7 +36,7 @@ export class DatabaseService {
   }
 
   // CRUD operations
-  async create<T>(table: string, entity: T, namesFields: nameFields<T>) {
+  async create<T>(table: string, entity: Partial<T>, namesFields: nameFields<T>) {
     const entityMap: any = {};
     for (const key in entity) {
       entityMap[namesFields[key]] = entity[key];
@@ -53,7 +53,11 @@ export class DatabaseService {
     );
   }
 
-  async read<T>(table: string, entity: T, namesFields: nameFields<T>) {
+  async read<T>(
+    table: string,
+    entity: Partial<T>,
+    namesFields: nameFields<T>,
+  ): Promise<T[]> {
     const entityMap: any = {};
     for (const key in entity) {
       entityMap[namesFields[key]] = entity[key];
@@ -64,15 +68,15 @@ export class DatabaseService {
       whereP.push(`${key}=$${whereP.length + 1}`);
     }
 
-    await this.queryManyRows(`SELECT * FROM ${table} WHERE ${whereP}`, [
+    return await this.queryManyRows(`SELECT * FROM ${table} WHERE ${whereP}`, [
       ...Object.values(entityMap),
     ]);
   }
 
   async update<T>(
     table: string,
-    where: T,
-    entity: T,
+    where: Partial<T>,
+    entity: Partial<T>,
     namesFields: nameFields<T>,
   ) {
     const whereMap: any = {};
@@ -105,7 +109,11 @@ export class DatabaseService {
     );
   }
 
-  async delete<T>(table: string, entity: T, namesFields: nameFields<T>) {
+  async delete<T>(
+    table: string,
+    entity: Partial<T>,
+    namesFields: nameFields<T>,
+  ) {
     const entityMap: any = {};
     for (const key in entity) {
       entityMap[namesFields[key]] = entity[key];

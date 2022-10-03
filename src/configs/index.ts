@@ -1,6 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-const { env } = process;
+const { env }: { env: any } = process;
 export const config = () => ({
   host: env.HOST || 'localhost',
   port: +env.PORT || 3000,
