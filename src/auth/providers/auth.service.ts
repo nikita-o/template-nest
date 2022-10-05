@@ -9,6 +9,10 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../interface/jwt-payload.interface';
 import { randomBytes } from 'crypto';
+import { User, UserDocument } from '../../database/schemas/user.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { RefreshToken } from '../../database/schemas/refresh-token.schema';
 
 @Injectable()
 export class AuthService {
@@ -19,14 +23,18 @@ export class AuthService {
     private userService: UserService,
     private utilService: UtilService,
     private jwtService: JwtService,
+    @InjectModel(RefreshToken.name)
+    private refreshTokenModel: Model<RefreshToken>,
+    @InjectModel(User.name)
+    private userModel: Model<UserDocument>,
   ) {}
 
-  private generateJwt(id: string, roles: ERole[]): string {
+  private generateJwt(id: string, role: ERole): string {
     const jwtLifetime: number = this.config.getOrThrow('secure').jwtLifetime;
     const jwtSecret: string = this.config.get('secure').jwtSecret;
     const actualPayload: JwtPayload = {
       sub: id,
-      roles: roles,
+      role: role,
     };
     const token: string = this.jwtService.sign(actualPayload, {
       secret: jwtSecret,
@@ -35,11 +43,25 @@ export class AuthService {
     return token;
   }
 
-  private generateRefreshToken(idUser: string): string {
+  private async generateRefreshToken(idUser: string): Promise<string> {
+    // поиск токена
+    const refresh: RefreshToken | null =
+      await this.refreshTokenModel.findOneAndDelete({
+        user: idUser,
+      });
+    if (!refresh) {
+      this.logger.warn('!refresh');
+      throw new UnauthorizedException('Неверный refresh токен');
+    }
+
     const refreshLifetime: number = this.config.get('secure').refreshLifetime;
-    // refreshLifetime и idUser сохраняются в базу данных, как и сгенеренный токен
     const refreshLength: number = this.config.get('secure').refreshLength;
     const token: string = randomBytes(Number(refreshLength)).toString('hex');
+    await this.refreshTokenModel.create({
+      token,
+      expDate: new Date(new Date().getTime() + refreshLifetime),
+      user: idUser,
+    });
     return token;
   }
 
@@ -47,9 +69,12 @@ export class AuthService {
     login: string,
     password: string,
   ): Promise<any | null> {
-    const user = await this.userService.read(login);
+    const user: Partial<User> | null = await this.userService.read(login);
+    if (!user) {
+      throw new UnauthorizedException();
+    }
     const passwordHash = this.utilService.getHash(password);
-    if (user && user.passwordHash === passwordHash) {
+    if (user.passwordHash === passwordHash) {
       delete user.passwordHash;
       return user;
     }
@@ -63,8 +88,8 @@ export class AuthService {
 
   async signIn(data: UserSignDto): Promise<CommonLoginResponseDto> {
     const user: any = this.validateUser(data.login, data.password);
-    const accessJwt: string = this.generateJwt(user.id, [ERole.Admin]);
-    const refreshToken: string = this.generateRefreshToken('1');
+    const accessJwt: string = this.generateJwt(user.id, ERole.Admin);
+    const refreshToken: string = await this.generateRefreshToken('1');
     return {
       accessToken: accessJwt,
       refreshToken,
